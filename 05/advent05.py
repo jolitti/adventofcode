@@ -19,16 +19,28 @@ def getLine(t:tuple) -> list[tuple[int,int]]:
         ans.append((x,y))
     return ans
 
-print(getLine(((0,0),(5,0))))
+def addLine(vents:dict,t:tuple):
+    points = getLine(t)
+    for p in points:
+        val = vents.get(p,0)
+        vents[p] = val+1
 
-with open("05/input00.txt") as file:
+# print(getLine(((0,0),(5,0))))
+
+with open("05/input05.txt") as file:
     data = file.readlines()
 
 points = []
 for d in data:
     a,b,c,d = map(int,re.split(",| -> ",d))
     points.append(((a,b),(c,d)))
-points = [x for x in points if checkOrto(x)] # Restrict to only ortogonal ones
+#points = [x for x in points if checkOrto(x)] # Restrict to only ortogonal ones
 # print(len(points))
 
 vents = {}
+for p in points:
+    addLine(vents,p)
+
+s = sum(1 for x in vents.keys() if vents[x]>=2)
+
+print(s)
