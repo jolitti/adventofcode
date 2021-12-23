@@ -8,4 +8,5 @@ for d in data:
     pos.append(Vector3(a,b,c))
 
 dists = [manDistance(x,y) for x in pos for y in pos if x is not y]
+print(*dists)
 print(max(dists))
