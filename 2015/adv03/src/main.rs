@@ -1,37 +1,32 @@
 use std::fs;
 use std::collections::HashMap;
+use cgmath::Vector2;
+use std::mem;
 
 fn main() {
     let data = fs::read_to_string("input.txt").expect("Failed to read file");
 
-    let mut x = 0;
-    let mut y = 0;
+    let mut santa1 = Vector2{x:0,y:0};
+    let mut santa2 = santa1.clone();
+    let mut map : HashMap<Vector2<i32>,i32> = HashMap::new();
 
-    let mut map : HashMap<[i32;2],i32>= HashMap::new();
-
-    for c in data.chars(){
-        let n = map.get(&[x,y]);
-        let n : i32 = match n{
-            Some(x) => *x,
-            None => 0
+    for c in data.chars()
+    {
+        let dir:Vector2<i32> = match &c {
+            '^' => {Vector2{x:0,y:1}},
+            '<' => {Vector2{x:-1,y:0}},
+            'v' => {Vector2{x:0,y:-1}},
+            '>' => {Vector2{x:1,y:0}},
+            _ => {Vector2{x:0,y:0}}
         };
-        
-        match c{
-            '^' => {y+=1},
-            'v' => {y -= 1},
-            '>' => {x += 1},
-            '<' => {x -= 1},
-            _ => continue
-        }
+        santa1 += dir;
+        let old_val:i32 = map.get(&santa1).unwrap_or(&0).clone();
 
-        map.insert([x,y], n+1);
+        map.insert(santa1,old_val+1);
+        
+
+        mem::swap(&mut santa1,&mut santa2);
     }
-    let n = map.get(&[x,y]);
-    let n : i32 = match n{
-        Some(x) => *x,
-        None => 0
-    };
-    map.insert([x,y], n+1);
 
     println!("{}",map.len());
 }
