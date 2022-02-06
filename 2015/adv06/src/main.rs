@@ -27,7 +27,7 @@ fn main() {
     }
 
     let mut tot = 0;
-    for ((x,y),state) in lights{
+    for ((_,_),state) in lights{
         tot += state;
     }
     println!("The total brightness is {}",tot);
