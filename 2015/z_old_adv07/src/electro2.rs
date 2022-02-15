@@ -2,21 +2,25 @@ use std::collections::HashMap;
 use {String, Vec};
 
 pub struct WireSystem {
-    wires: HashMap<String,Wire>
+    wires: HashMap<String,Wire>,
+    cache: HashMap<String,u16>
 }
 
 impl WireSystem {
     pub fn new() -> Self {
-        WireSystem {wires: HashMap::new()}
+        WireSystem {wires: HashMap::new(), cache: HashMap::new()}
     }
 
     pub fn get_wire(&self, s:&String) -> u16 {
-        self.wires.get(s).expect("Wire not found").get_val(&self.wires)
+        if let Some(x) = self.wires.get(s) { x }
+        
     }
 
     pub fn add_line(&mut self, s: &String) {
         let words: Vec<String> = s.split(" ").map(|x| String::from(x)).collect();
         let target = words[words.len()-1].clone();
+
+        //if let Some(x) = self.wires.get(&target) { panic!("{}",target) }
 
         self.wires.insert(target, Wire{ source: 
             match &words[..] {

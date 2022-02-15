@@ -1,0 +1,76 @@
+Wire { source: Assign("lx") }
+Wire { source: Or("lw", "lv") }
+Wire { source: Lshift("lc", 1) }
+Wire { source: Or("lb", "la") }
+Wire { source: Lshift("kh", 1) }
+Wire { source: Or("kg", "kf") }
+Wire { source: Lshift("jm", 1) }
+Wire { source: Or("jl", "jk") }
+Wire { source: Lshift("ir", 1) }
+Wire { source: Or("iq", "ip") }
+Wire { source: Lshift("hw", 1) }
+Wire { source: Or("hv", "hu") }
+Wire { source: Lshift("hb", 1) }
+Wire { source: Or("ha", "gz") }
+Wire { source: Lshift("gg", 1) }
+Wire { source: Or("gf", "ge") }
+Wire { source: Lshift("fl", 1) }
+Wire { source: Or("fk", "fj") }
+Wire { source: Lshift("eq", 1) }
+Wire { source: Or("ep", "eo") }
+Wire { source: Lshift("dv", 1) }
+Wire { source: Or("du", "dt") }
+Wire { source: Lshift("da", 1) }
+Wire { source: Or("cz", "cy") }
+Wire { source: Lshift("cf", 1) }
+Wire { source: Or("ce", "cd") }
+Wire { source: Lshift("bk", 1) }
+Wire { source: Or("bj", "bi") }
+Wire { source: Lshift("ap", 1) }
+Wire { source: Or("ao", "an") }
+Wire { source: Lshift("u", 1) }
+Wire { source: Or("t", "s") }
+Wire { source: Lshift("c", 1) }
+Wire { source: Literal(0) }
+Wire { source: And("1", "r") }
+Wire { source: Literal(1) }
+Wire { source: And("o", "q") }
+Wire { source: Or("b", "n") }
+Wire { source: Literal(44430) }
+Wire { source: And("k", "m") }
+Wire { source: Or("d", "j") }
+Wire { source: Rshift("b", 2) }
+Wire { source: Literal(44430) }
+Wire { source: And("g", "i") }
+Wire { source: Or("e", "f") }
+Wire { source: Rshift("b", 3) }
+Wire { source: Literal(44430) }
+Wire { source: Rshift("b", 5) }
+Wire { source: Literal(44430) }
+Wire { source: Not("h") }
+Wire { source: And("e", "f") }
+Wire { source: Rshift("b", 3) }
+Wire { source: Literal(44430) }
+Wire { source: Rshift("b", 5) }
+Wire { source: Literal(44430) }
+Wire { source: Not("l") }
+Wire { source: And("d", "j") }
+Wire { source: Rshift("b", 2) }
+Wire { source: Literal(44430) }
+Wire { source: And("g", "i") }
+Wire { source: Or("e", "f") }
+Wire { source: Rshift("b", 3) }
+Wire { source: Literal(44430) }
+Wire { source: Rshift("b", 5) }
+Wire { source: Literal(44430) }
+Wire { source: Not("h") }
+Wire { source: And("e", "f") }
+Wire { source: Rshift("b", 3) }
+Wire { source: Literal(44430) }
+Wire { source: Rshift("b", 5) }
+Wire { source: Literal(44430) }
+Wire { source: Not("p") }
+Wire { source: And("b", "n") }
+Wire { source: Literal(44430) }
+Wire { source: And("k", "m") }
+Wire { source: Or("d", "j") }

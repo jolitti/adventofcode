@@ -1,4 +1,5 @@
 123 -> k
+k AND k -> kk
 k -> x
 456 -> y
 x AND y -> d
