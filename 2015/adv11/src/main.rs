@@ -1,5 +1,4 @@
 use String;
-use Vec;
 use itertools::izip;
 use fancy_regex::Regex;
 
