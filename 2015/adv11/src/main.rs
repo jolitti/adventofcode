@@ -1,17 +1,23 @@
 use String;
 use Vec;
 use itertools::izip;
+use fancy_regex::Regex;
 
 fn main() {
     /* for c in "abcdefghijkmnopqrtuvwxyz".chars() {
         println!("{} -> {}",c,next_char(c).0)
     } */
 
-    println!("{}",next_str(String::from("aaa")));
-    println!("{}",next_str(String::from("aabaz")));
-    println!("{}",next_str(String::from("zzz")));
+    //let mut pass = String::from("hxbxwxba");
+    let mut pass = String::from("hxbxxyzz");
 
-    println!("{}",has_inc_straight(String::from("abcdffaa")));
+    while !valid_password(&pass) { pass = next_str(pass) }
+    println!("first pass: {}",pass);
+
+    pass = next_str(pass);
+
+    while !valid_password(&pass) { pass = next_str(pass) }
+    println!("second pass: {}",pass);
 }
 
 fn next_char(c:char) -> (char,bool) {
@@ -38,7 +44,7 @@ fn next_str(s:String) -> String {
     ans
 }
 
-fn has_forbidden_letters(s:String) -> bool {
+fn has_forbidden_letters(s:&String) -> bool {
     let forb_list = ['i','o','l'];
     for c in s.chars() {
         if forb_list.contains(&c) {return true}
@@ -46,9 +52,20 @@ fn has_forbidden_letters(s:String) -> bool {
     false
 }
 
-fn has_inc_straight(s:String) -> bool {
+fn has_inc_straight(s:&String) -> bool {
     for (x,y,z) in izip!(s.chars(),s.chars().skip(1),s.chars().skip(2)) {
-        if y == next_char(x).0 && z == next_char(y).0 {return true}
+        if y == next_char(x).0 && z == next_char(y).0 &&  x!='z' && y!='z' {return true}
     }
     false
+}
+
+fn distinct_pairs(s:&String) -> usize {
+    let pair_re = Regex::new(r"(\w)\1").unwrap();
+    pair_re.find_iter(&s.to_string()).count()
+}
+
+fn valid_password(s:&String) -> bool {
+    !has_forbidden_letters(s) &&
+    has_inc_straight(s) &&
+    distinct_pairs(s) >= 2
 }
