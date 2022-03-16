@@ -1,37 +1,40 @@
-from myutils import getAdventData
-from old_cuboid import *
-import re
+from rizomath.cuboid import Cuboid, str_to_cb
+# on x=44376..68804,y=-48705..-15357,z=24716..43885
 
-LIMIT = 100000
+def cubo_from_line(s:str) -> Cuboid:
+    l = s.split()
+    value = True if l[0]=="on" else False
+    source = l[1]
+    for c in ["x=","y=","z="]:
+        source = source.replace(c,"")
+    source = source.replace(","," ")
+    return str_to_cb(source,value)
 
-data = getAdventData("2021/22","input22.txt")
+def overlaps(l:list[Cuboid], c:Cuboid) -> Cuboid | None:
+    for list_cubo in l:
+        overlap = list_cubo & c
+        if overlap is not None: return list_cubo
+    return None
 
-data = [re.split(" |,",d) for d in data]
-for d in data:
-    d[0] = True if d[0]=="on" else False
-    for i in [1,2,3]:
-        d[i] = d[i][2:]
 
-reactor = dict()
-for x in range(-LIMIT,LIMIT+1):
-    print(x)
-    for y in range(-LIMIT,LIMIT+1):
-        for z in range(-LIMIT,LIMIT+1):
-            reactor[(x,y,z)] = False
+with open("input22.txt") as file:
+    data = file.read().splitlines()
+cubos = []
 
-i = 0
-for d in data:
-    i+=1
+for i,d in enumerate(data):
     print(i)
-    newState = d[0]
-    cub = getCuboid(d[1:])
-    cub = trimCuboid(cub,LIMIT)
-    if cub is not None:
-        for p in cuboidToPoints(cub):
-            reactor[p] = newState
+    new_cubo = cubo_from_line(d)
+    print(d, " ", new_cubo.value)
+    #while (overlapping:=overlaps(cubos,new_cubo)) is not None:
+    while overlaps(cubos,new_cubo) is not None:
+        overlapping = overlaps(cubos,new_cubo)
+        #print(f"{overlapping=}")
+        #print(new_cubo)
+        cubos.remove(overlapping)
+        cubos += overlapping - new_cubo
+    cubos.append(new_cubo)
 
-tot = 0
-for p in reactor.keys():
-    if reactor[p]: tot += 1
-
-print(tot)
+print(sum(c.volume() for c in cubos if c.value==True))
+print(sum(c.volume() for c in cubos if c.value==False))
+print(sum(c.volume() for c in cubos))
+print(f"{len(cubos)=}")
