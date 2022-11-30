@@ -2,7 +2,10 @@ use std::cmp;
 
 fn main() {
     let base_state = GameState::new(50, 500, 71, 10);
-    assert_eq!(base_state,base_state);
+
+    for (a,b) in GameState::results(base_state, 0) {
+        println!("{a:?}");
+    }
 }
 
 #[derive(Eq,PartialEq,Hash,Clone,Debug)]
@@ -81,6 +84,7 @@ impl GameState {
 
         let mut state_copy = self.clone();
 
+        // /////////////////////////////
         if state_copy.poison_remaining > 0 {
             state_copy.enemy_life -= GameState::POISON_DMG;
             state_copy.poison_remaining -= 1;
@@ -89,12 +93,25 @@ impl GameState {
             state_copy.player_mana += GameState::RECHARGE_AMOUNT;
             state_copy.recharge_remaining -= 1;
         }
-
+        if state_copy.shield_remaining > 0 { state_copy.shield_remaining -= 1; }
         if state_copy.enemy_life <= 0 { return state_copy; } // Enemy dead
         // Enemy attack
         let mut shield = 0;
-        if self.shield_remaining > 0 { shield = GameState::SHIELD_AMOUNT; }
+        if state_copy.shield_remaining > 0 { shield = GameState::SHIELD_AMOUNT; }
+        state_copy.player_life -= state_copy.enemy_attack - shield;
+        if state_copy.player_life <= 0 { return state_copy; } // Player dead
+        // //////////////////////////////////
 
+        // //////////////////////////////////
+        if state_copy.poison_remaining > 0 {
+            state_copy.enemy_life -= GameState::POISON_DMG;
+            state_copy.poison_remaining -= 1;
+        }
+        if state_copy.recharge_remaining > 0 {
+            state_copy.player_mana += GameState::RECHARGE_AMOUNT;
+            state_copy.recharge_remaining -= 1;
+        }
+        if state_copy.shield_remaining > 0 { state_copy.shield_remaining -= 1; }
         match *mov {
             /*Moves::EnemyAtk => { 
                 state_copy.enemy_life -= state_copy.enemy_attack 
@@ -116,16 +133,13 @@ impl GameState {
                 state_copy.poison_remaining = GameState::RECHARGE_TURNS;
             }
         }
-
-        if state_copy.shield_remaining > 0 {
-            
-        }
+        // /////////////////////////////
 
         state_copy
     }
 
     pub fn outcome(&self) -> Outcome {
-        if self.player_life > 0 && self.player_mana > 0 { Outcome::Loss }
+        if self.player_life <= 0 || self.player_mana <= 0 { Outcome::Loss }
         else if self.enemy_life <= 0 { Outcome::Win }
         else { Outcome::Running }
     }
@@ -147,7 +161,9 @@ impl GameState {
         let moves = state.possible_moves();
         for m in moves {
             let result = state.result_of_move(&m);
-            if result.outcome() != Outcome::Loss {
+            //println!("{result:?}");
+            //if result.outcome() != Outcome::Loss 
+            {
                 ans.push(
                     (
                         state.result_of_move(&m),
