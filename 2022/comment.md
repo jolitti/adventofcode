@@ -18,6 +18,11 @@ be true for the modulo of x\*y and their individual divisibility.
 This works for non-prime numbers too, but the author probably 
 wanted to ease the solver into the realization.
 
+Anyway, I quickly threw together an implementation of this 
+principle and fearfully launched the program. 
+It worked! I'm so happy I don't have to spend another hour 
+figuring out a more rigorous approach.
+
 ---
 
 ## To be continued
