@@ -35,6 +35,9 @@ would probably not have been worth it.
 Very fun day nonetheless, hopefully tomorrow I have time 
 to solve tomorrow's before the next comes out.
 
+Now that I think about it, I could've solved part 2 
+by starting from the top and exploring until i found an "a"
+
 ---
 
 ## To be continued
