@@ -25,4 +25,16 @@ figuring out a more rigorous approach.
 
 ---
 
+## Day 12
+Part 2: 
+Spent more that I care to admit before realizing there are 
+areas of "a"s surrounded by unclimbable ledges.  
+Applied a very brute force approach iterating through all 
+candidates, but if I coded a finer solution the time save 
+would probably not have been worth it.  
+Very fun day nonetheless, hopefully tomorrow I have time 
+to solve tomorrow's before the next comes out.
+
+---
+
 ## To be continued
