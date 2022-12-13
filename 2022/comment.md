@@ -40,4 +40,13 @@ by starting from the top and exploring until i found an "a"
 
 ---
 
+## Day 13
+Decided to save the input to avoid eval() exploits if 
+somehow a hacker gains control of the aoc server. Solved the 
+comparison function on paper, the implementation was fairly quick.  
+Took a hot second to find a way to enforce it as a sort comparison 
+function for python
+
+---
+
 ## To be continued
