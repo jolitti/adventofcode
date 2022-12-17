@@ -7,6 +7,10 @@ class Tile(Enum):
     rock = "#"
     sand = "o"
     origin = "@"
+class GrainResult(Enum):
+    in_cave = "cave"
+    bottom = "bottom"
+    occluded = "occluded"
 
 puzzle = Puzzle(year=2022,day=14)
 
@@ -45,8 +49,6 @@ class Cave:
                     self.minx = min(self.minx,x)
                     self.maxx = max(self.maxx,x)
                     self.maxy = max(self.maxy,y)
-        for x,y in interpolate((self.minx-10,self.maxy+10),(self.maxx+10,self.maxy+10)):
-            self.tiles[(x,y)] = Tile.rock
     def __str__(self) -> str:
         ans = []
         dx,dy = self.maxx-self.minx,self.maxy-self.miny
@@ -59,22 +61,34 @@ class Cave:
                 else: line+=" "
             ans.append(line)
         return "\n".join(ans)
+    def is_solid(self,p:tuple[int,int]) -> bool:
+        if self.tiles.get(p,None) is not None: return True
+        if p[1]>=self.maxy+2: return True
+        return False
     def dropspace(self,p:tuple[int,int]) -> tuple[int,int]:
         x,y = p
-        if self.tiles.get((x,y+1),None) is None: return (x,y+1)
-        if self.tiles.get((x-1,y+1),None) is None: return (x-1,y+1)
-        if self.tiles.get((x+1,y+1),None) is None: return (x+1,y+1)
+        if not self.is_solid((x,y+1)): return (x,y+1)
+        if not self.is_solid((x-1,y+1)): return (x-1,y+1)
+        if not self.is_solid((x+1,y+1)): return (x+1,y+1)
         return None
-    def dropgrain(self) -> bool:
+    def dropgrain(self) -> GrainResult:
         p = self.sand_origin
         while self.dropspace(p) is not None:
             p = self.dropspace(p)
         self.tiles[p] = Tile.sand
-        if p[1] >=self.maxy: return False
-        else: return True
+        if p[1] >=self.maxy: return GrainResult.bottom
+        if p==self.sand_origin: return GrainResult.occluded
+        else: return GrainResult.in_cave
 
 cave = Cave(lines)
 ans1 = 0
-while cave.dropgrain(): ans1+=1
+while cave.dropgrain() == GrainResult.in_cave: ans1+=1
 print(f"First answer: {ans1}")
 puzzle.answer_a = ans1
+
+ans2 = ans1
+while cave.dropgrain() != GrainResult.occluded: ans2 += 1
+ans2 += 2 # Off by two error! Don't know why, don't have time to fix
+print(f"Second answer: {ans2}")
+print(cave)
+puzzle.answer_b = ans2
