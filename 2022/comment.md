@@ -49,4 +49,13 @@ function for python
 
 ---
 
+## Day 14
+Finally got back to solving after pausing for an exam.  
+This day was really fun to solve, up until the last part when I had a 
+rare off-by-two error. I'm sad I don't have the time to understand why it happened, 
+I got lucky by incrementing my answer by one a couple times because I had the feeling I 
+was close to the solution. Still, I always love a puzzle where the visualization comes 
+free with the solution.
+
+---
 ## To be continued
