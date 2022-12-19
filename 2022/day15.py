@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from aocd import lines, numbers
 from aocd.models import Puzzle
 import re
+import sys
 
 puzzle = Puzzle(year=2022,day=15)
 
@@ -35,6 +36,8 @@ assert(counter==26)
 beacons = set((c,d) for _,_,c,d in numbers)
 sensors = getsensors(numbers)
 plt.plot(list(beacons))
+plt.show()
+sys.exit()
 
 maxrange = max(r for _,r in sensors)
 minx = min(x for (x,_),_ in sensors) - maxrange
