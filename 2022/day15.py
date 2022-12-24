@@ -1,61 +1,33 @@
-import matplotlib.pyplot as plt
-from aocd import lines, numbers
+from aocd import numbers
 from aocd.models import Puzzle
-import re
-import sys
+from shapely import Polygon, LineString
+from shapely.ops import unary_union, clip_by_rect
+import matplotlib.pyplot as plt
 
 puzzle = Puzzle(year=2022,day=15)
 
-def mandist(a:tuple[int,int],b:tuple[int,int]) -> int:
-    x,y = a
-    xx,yy = b
-    return abs(x-xx) + abs(y-yy)
+def get_poly(sequence: list[list[numbers]]) -> Polygon:
+    poly = Polygon()
+    for a,b,c,d in sequence:
+        dist = abs(a-c) + abs(b-d)
+        points = [(a,b-dist),(a-dist,b),(a,b+dist),(a+dist,b)]
+        poly = unary_union([poly,Polygon(points)])
+    return poly
 
-def getsensors(nums:list[list[int]]) -> list[tuple[tuple[int,int],int]]:
-    return [((a,b),mandist((a,b),(c,d))) for a,b,c,d in nums]
-
-def can_be_beacon(p:tuple[int,int],sensors:list[tuple[int,int]],beacons:set[tuple[int,int]]=None) -> bool:
-    if p in beacons: return False
-    for s in sensors:
-        sp, d = s
-        if mandist(p,sp)<=d: return True
-    return False
-
-sampledata = puzzle.example_data.split("\n")
-sampledata = [list(map(int,re.findall("[+-]?[0-9]+",line))) for line in sampledata]
-samplebeacons = set((c,d) for _,_,c,d in sampledata)
-samplesensors = getsensors(sampledata)
-
-sans = ""
-counter = 0
-for x in range(-5,28):
-    sans += "#" if can_be_beacon((x,10),samplesensors,samplebeacons) else " "
-    if can_be_beacon((x,10),samplesensors,samplebeacons): counter+=1
-assert(counter==26)
-
-beacons = set((c,d) for _,_,c,d in numbers)
-sensors = getsensors(numbers)
-plt.plot(list(beacons))
+poly = get_poly(numbers) # the polygon of the covered areas
+line = LineString([(-10000000000,2_000_000),(10000000000,2_000_000)]) # the intersection line
+# poly = clip_by_rect(poly,-2000000,2000000,40000000,2000001)
+inters = list(poly.intersection(line).coords) # the intersection of the line with the total area
+intersx,intersy = [x for x,y in inters],[y for x,y in inters] # reformatting the coordinates for matplotlib
+x,y = poly.exterior.xy # coordinates of the exterior of the polygon
+plt.plot(x,y)
+plt.plot(intersx,intersy)
 plt.show()
-sys.exit()
 
-maxrange = max(r for _,r in sensors)
-minx = min(x for (x,_),_ in sensors) - maxrange
-minx -= 10000000
-maxx = max(x for (x,_),_ in sensors) + maxrange
-maxx += 10000000
-ans1 = 0
-foundmin = False
-mintrue = maxx
-maxtrue = minx
-for x in range(minx,maxx+1):
-    if not can_be_beacon((x,2_000_000),sensors,beacons):
-        if not foundmin:
-            print("Found a new minimum!")
-            mintrue = x
-            foundmin = True
-        maxtrue = x
-        ans1+=1
-print(f"Min x found: {mintrue}, max x found: {maxtrue}")
-print(f"Original minx: {minx}, maxx: {maxx}")
-print(ans1)
+intersx = list(map(int,intersx))
+answer1 = intersx[1] - intersx[0] + 1 # length of the intersecting line
+beacons = [(c,d) for a,b,c,d in numbers] # list of the beacon points
+for bx,by in beacons: # subtracting positions which definitely contain a beacon
+    if by==2_000_000:
+        if bx in range(intersx[0],intersx[1]+1): answer1-=1
+print(answer1)
