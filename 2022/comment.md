@@ -58,4 +58,21 @@ was close to the solution. Still, I always love a puzzle where the visualization
 free with the solution.
 
 ---
+
+## Day 15
+Due to a combination of laziness and business, I'm really 
+unsatisfied with my solution to this one.  
+First of all, I got stuck two times on the first part because 
+I kept trying naive approaches, hoping they would be sufficient. 
+A kind stranger on reddit helped me realize I was counting a 
+single beacon three times. The second part was easier thanks to 
+the `shapely` library which allowed me to plot the beacon areas and 
+the missing coverage inside the bounding area. I didn't even check if 
+the blind spot contained more than one integer coordinate pair, I 
+just entered the exact middle point of the area.  
+Overall a humbling experience which I've thankfully overcome. 
+I need to get better at geometry computation.
+
+---
+
 ## To be continued
