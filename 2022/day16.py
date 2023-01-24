@@ -64,7 +64,7 @@ def solve(data:list[str]) -> int:
         connections[name] = set()
         for c in conns: connections[name].add((c,1))
     
-    print(connections)
+    # print(connections)
     # Graph compression
     for name,value in flow.items():
         if value > 0: continue
@@ -81,14 +81,21 @@ def solve(data:list[str]) -> int:
     exploqueue = []
     exploqueue.append(CaveTraversal(flow,connections,set(),30,"AA"))
 
-    # TODO exploration
-    
-    initial_state = CaveTraversal(flow,connections,set(),30,"AA")
-    while not initial_state.is_over():
-        print(initial_state.current_room,initial_state.score,initial_state.opened)
-        initial_state = initial_state.new_states()[0]
+    while len(exploqueue)>0:
+        state = exploqueue.pop()
+        for newstate in state.new_states():
+            if newstate.is_over(): finished_explorations.append(newstate)
+            else: exploqueue.insert(0,newstate)
+
+    values = [explo.score for explo in finished_explorations]
+    return max(values)
 
 # solve(["Valve AA has flow rate=100; tunnels lead to valves BB",
 #    "Valve BB has flow rate=1; tunnels lead to valves AA"])
 
-solve(puzzle.example_data.split("\n"))
+ans_sample = solve(puzzle.example_data.split("\n"))
+assert ans_sample == 1651
+
+ans1 = solve(lines)
+print(f"First answer: {ans1}")
+puzzle.answer_a = ans1
