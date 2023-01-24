@@ -25,18 +25,34 @@ class CaveTraversal:
     def is_over(self) -> bool:
         return len(self.opened) == len(self.flow) or self.minutes_left<=0
 
-    def new_states(self,flow:dict[str,int],connections:dict[str,tuple[str,int]]) -> list["CaveTraversal"]:
+    def new_states(self) -> list["CaveTraversal"]:
         destinations = {}
         queue = PriorityQueue()
         queue.put((0,self.current_room))
         while queue.qsize()>0:
             cost, room = queue.get()
+            # print(cost,room)
             if room not in destinations: destinations[room] = cost
             for room2,cost2 in self.connections[room]:
-                if room2 not in destinations: queue.put((cost+cost2,room2))
+                if room2 not in destinations: 
+                    queue.put((cost+cost2,room2))
+                    # print(f"  {cost+cost2} {room2}")
         destinations.pop(self.current_room)
         # TODO add new instance per destination
         ans = []
+        for room,cost in destinations.items():
+            if room in self.opened: continue
+            if room not in self.flow: continue
+            if cost+1 > self.minutes_left: continue
+            next_state = CaveTraversal(
+                    self.flow,
+                    self.connections,
+                    self.opened.union({room}),
+                    self.minutes_left - cost - 1,
+                    room,
+                    self.score + self.flow[room] * (self.minutes_left - cost - 1)
+                    )
+            ans.append(next_state)
         return ans
 
 def solve(data:list[str]) -> int:
@@ -64,13 +80,13 @@ def solve(data:list[str]) -> int:
     finished_explorations = []
     exploqueue = []
     exploqueue.append(CaveTraversal(flow,connections,set(),30,"AA"))
-    while len(exploqueue)>0:
-        explo = exploqueue.pop()
-        if explo.is_over(): finished_explorations.append(explo)
-        for ex in explo.new_states(flow,connections): exploqueue.insert(0,ex)
 
-    values = [ex.score for ex in finished_explorations]
-    # print(max(values))
+    # TODO exploration
+    
+    initial_state = CaveTraversal(flow,connections,set(),30,"AA")
+    while not initial_state.is_over():
+        print(initial_state.current_room,initial_state.score,initial_state.opened)
+        initial_state = initial_state.new_states()[0]
 
 # solve(["Valve AA has flow rate=100; tunnels lead to valves BB",
 #    "Valve BB has flow rate=1; tunnels lead to valves AA"])
