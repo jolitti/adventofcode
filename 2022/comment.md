@@ -75,4 +75,29 @@ I need to get better at geometry computation.
 
 ---
 
+## Day 16
+I'm still too busy studying to complete this, but I'm mentally 
+refining my approach. The first instinct was to make an 
+exploration tree for each room with two possible actions: move 
+or open valve, but it scales too quickly to be feasible.  
+So I tried to collapse the room graph eliminating all the "corridor" 
+rooms with 0 flow and two exits, but it wasn't enough even for the 
+example problem: the steps where the imaginary player was running around 
+never opening any valve were too numerous. A partial solution was to 
+fuse together the two actions (it's easy enough to compute the 
+minimum distance between any two nodes, even if I made the grave 
+mistake to repeat it for each iteration). Unfortunately, this is 
+still agonizingly slow and gives the wrong answer for the actual 
+input.  
+My next attempt will involve a complete rewrite where I'll precompute 
+the minimum distance between every node with flows (and AA) and an 
+iteration over every permutation of the rooms. For my input set, 
+this is an iteration of almost 40 million elements, but the calculations 
+themselves are pretty quick. Also it assumes that every visit route 
+can be done in less than 30 minutes, but it's easy to test that 
+hypothesis. Will update this log when I actually implement this approach.  
+[...]
+
+---
+
 ## To be continued
