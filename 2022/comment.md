@@ -96,7 +96,10 @@ this is an iteration of almost 40 million elements, but the calculations
 themselves are pretty quick. Also it assumes that every visit route 
 can be done in less than 30 minutes, but it's easy to test that 
 hypothesis. Will update this log when I actually implement this approach.  
-[...]
+
+Finished most of the exams, went back to take a look. 
+Turns out the iteration over every room combination is even slower. 
+I'll sleep on it and think of a new approach tomorrow. 
 
 ---
 

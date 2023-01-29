@@ -1,6 +1,8 @@
 from aocd import lines
 from aocd.models import Puzzle
 from queue import PriorityQueue
+from itertools import permutations
+from more_itertools import windowed
 
 puzzle = Puzzle(year=2022,day=16)
 
@@ -40,25 +42,45 @@ def get_traversal_costs(conns:dict[str,set[str,int]]) -> dict[tuple[str,str],int
     found = {}
     rooms = {room for room,_ in conns.items()}
     for start_room in rooms:
+        print(found)
+        print(start_room)
+        visited = set()
         queue = PriorityQueue()
-        for adjacent,dist in conns[start_room]:
-            queue.put((dist,adjacent))
+        queue.put((0,start_room))
         while queue.qsize() != 0:
             cost,destination = queue.get()
-            if (start_room,destination) not in found:
+            if destination not in visited:
                 found[(start_room,destination)] = cost
+                visited.add(destination)
                 for new_room_name,cost2 in conns[destination]:
                     if new_room_name == start_room: continue
+                    if new_room_name in visited: continue
                     queue.put((cost+cost2,new_room_name))
+                    print(f"  Putting {new_room_name}")
 
     return found
+
+def get_score(permutation:list[str],flow:dict[str,int],distances:dict[tuple[str,str],int]) -> int:
+    cost = 0
+    for start,end in windowed(permutation,2):
+        cost += distances[(start,end)] + 1
+    if cost>30: print("Too much distance!")
+    else: print(cost)
+    return 0
+
 
 def solve(data:list[str]) -> int:
     flow, conns = get_graph(data)
     assert len(flow)+1 == len(conns)
     costs = get_traversal_costs(conns)
-    print(costs)
+    rooms = [room for room,_ in flow.items()]
+
+    max_score = 0
+    for perm in permutations(flow):
+        print(perm)
+        pass
 
     return 0
 
-print(solve(puzzle.example_data.split("\n")))
+# print(solve(puzzle.example_data.split("\n")))
+print(solve(lines))
