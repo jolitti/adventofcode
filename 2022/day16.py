@@ -1,7 +1,7 @@
 from aocd import lines
 from aocd.models import Puzzle
 from queue import PriorityQueue
-from itertools import permutations
+from itertools import permutations, product
 from more_itertools import windowed
 
 puzzle = Puzzle(year=2022,day=16)
@@ -75,7 +75,8 @@ def find_best_moves(
         (only_move,) = available_rooms
         travcost = traversal_costs[(current_room,only_move)]
         if travcost + 1 > time_remaining:
-            raise ValueError("Not enough time to travel to only room!")
+            #raise ValueError("Not enough time to travel to only room!")
+            return [],current_score
         return [only_move], current_score + room_flows[only_move] * (time_remaining - travcost - 1)
 
     maxmoves,maxscore = [], current_score
@@ -97,7 +98,7 @@ def find_best_moves(
     return maxmoves,maxscore
 
 
-def solve(data:list[str]) -> int:
+def solve(data:list[str]) -> tuple[int,int]:
     flow, conns = get_graph(data)
     assert len(flow)+1 == len(conns)
     costs = get_traversal_costs(conns)
@@ -109,10 +110,29 @@ def solve(data:list[str]) -> int:
     #for a,b in windowed(["AA"]+moves,2):
     #    costlist.append(costs[(a,b)] + 1)
     #print(costlist,sum(costlist))
+    
+    rooms_list = list(rooms)
+    # Second part
+    score2 = 0
+    maxmoves = None,None
+    for comb in product([True,False],repeat=len(rooms)):
+        rooms_a = {r for r,v in zip(rooms_list,comb) if v}
+        rooms_b = {r for r,v in zip(rooms_list,comb) if not v}
+        assert rooms_a.intersection(rooms_b) == set()
+        assert rooms_a.union(rooms_b) == rooms
 
-    return score
+        moves_a,score_a = find_best_moves(["AA"],rooms_a,0,26,flow,costs)
+        moves_b,score_b = find_best_moves(["AA"],rooms_b,0,26,flow,costs)
 
-assert solve(puzzle.example_data.split("\n")) == 1651
-ans1 = solve(lines) # 2166 too low 2200 too high !! 2181 good candidate -> CORRECT
+        if score_a+score_b>score2:
+            score2 = score_a+score_b
+            print(score2)
+            maxmoves = moves_a,moves_b
+    
+    return score,score2
+
+assert solve(puzzle.example_data.split("\n")) == (1651,1707)
+ans1,ans2 = solve(lines) # 2166 too low 2200 too high !! 2181 good candidate -> CORRECT
 print(f"First answer: {ans1}")
 # puzzle.answer_a = ans1  For some reason this breaks aocd
+print(f"Second answer: {ans2}") # 2824 Got after running it for a few minutes and interrupting early

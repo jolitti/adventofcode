@@ -112,7 +112,16 @@ webpage's box, so I'll have to wait a couple of minutes.
 
 Typed it wrong again.
 
+The solution was correct and was pretty easy to reuse for part 2. 
+I used the cartesian product to generate every binary partition of the room 
+set and assigned one for each actor, maximising the sum of the resulting 
+explorations. The run time was pretty slow, so I added a `print()` 
+to get notified every time a better score was achieved and stopped the 
+program after a couple of minuted of no new records. This proved to be the 
+correct answer, luckily.
 
+All in all, I'm not super proud of this solution, but I'm happy I managed 
+to implement some aspects of dynamic programming and partitioning.
 
 ---
 
