@@ -101,6 +101,19 @@ Finished most of the exams, went back to take a look.
 Turns out the iteration over every room combination is even slower. 
 I'll sleep on it and think of a new approach tomorrow. 
 
+Ok, I've tried dynamic programming to perform a BFS of the possible 
+traversals and it runs surprisingly fast. I've had a moment of 
+desperation when the algorithm solved the sample data but not the 
+real one, but then I realized the solution it outputted landed on 
+the last room and opened the valve right as the clock hit 0, so the 
+last action was entirely pointless. Adding a check to skip moves that 
+commit that error yielded a new solution that I typed wrong in the 
+webpage's box, so I'll have to wait a couple of minutes.
+
+Typed it wrong again.
+
+
+
 ---
 
 ## To be continued

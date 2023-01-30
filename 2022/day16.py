@@ -78,9 +78,10 @@ def find_best_moves(
             raise ValueError("Not enough time to travel to only room!")
         return [only_move], current_score + room_flows[only_move] * (time_remaining - travcost - 1)
 
-    maxmoves,maxscore = [], 0
+    maxmoves,maxscore = [], current_score
     for destination in available_rooms:
         traveltime = traversal_costs[(current_room,destination)]
+        if traveltime+1 >= time_remaining: continue
         added_score = room_flows[destination] * (time_remaining - traveltime - 1)
         newmoves,newscore = find_best_moves(
                 past_moves + [destination],
@@ -103,8 +104,15 @@ def solve(data:list[str]) -> int:
     rooms = {room for room,_ in flow.items()}
 
     moves,score = find_best_moves(["AA"],rooms,0,30,flow,costs)
+    #print(moves)
+    #costlist = []
+    #for a,b in windowed(["AA"]+moves,2):
+    #    costlist.append(costs[(a,b)] + 1)
+    #print(costlist,sum(costlist))
 
     return score
 
 assert solve(puzzle.example_data.split("\n")) == 1651
-print(solve(lines)) # 2166 too low
+ans1 = solve(lines) # 2166 too low 2200 too high !! 2181 good candidate -> CORRECT
+print(f"First answer: {ans1}")
+# puzzle.answer_a = ans1  For some reason this breaks aocd
