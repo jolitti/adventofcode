@@ -42,8 +42,8 @@ def get_traversal_costs(conns:dict[str,set[str,int]]) -> dict[tuple[str,str],int
     found = {}
     rooms = {room for room,_ in conns.items()}
     for start_room in rooms:
-        print(found)
-        print(start_room)
+        # print(found)
+        # print(start_room)
         visited = set()
         queue = PriorityQueue()
         queue.put((0,start_room))
@@ -56,31 +56,55 @@ def get_traversal_costs(conns:dict[str,set[str,int]]) -> dict[tuple[str,str],int
                     if new_room_name == start_room: continue
                     if new_room_name in visited: continue
                     queue.put((cost+cost2,new_room_name))
-                    print(f"  Putting {new_room_name}")
+                    # print(f"  Putting {new_room_name}")
 
     return found
 
-def get_score(permutation:list[str],flow:dict[str,int],distances:dict[tuple[str,str],int]) -> int:
-    cost = 0
-    for start,end in windowed(permutation,2):
-        cost += distances[(start,end)] + 1
-    if cost>30: print("Too much distance!")
-    else: print(cost)
-    return 0
+def find_best_moves(
+        past_moves: list[str],
+        available_rooms: set[str],
+        current_score: int,
+        time_remaining: int,
+        room_flows: dict[str,int],
+        traversal_costs: dict[tuple[str,str],int]
+        ) -> tuple[list[str],int]: # following moves, score
+
+    current_room = past_moves[-1]
+    if time_remaining <= 0: return [],current_score
+    if len(available_rooms) == 1:
+        (only_move,) = available_rooms
+        travcost = traversal_costs[(current_room,only_move)]
+        if travcost + 1 > time_remaining:
+            raise ValueError("Not enough time to travel to only room!")
+        return [only_move], current_score + room_flows[only_move] * (time_remaining - travcost - 1)
+
+    maxmoves,maxscore = [], 0
+    for destination in available_rooms:
+        traveltime = traversal_costs[(current_room,destination)]
+        added_score = room_flows[destination] * (time_remaining - traveltime - 1)
+        newmoves,newscore = find_best_moves(
+                past_moves + [destination],
+                available_rooms.difference({destination}),
+                current_score + added_score,
+                time_remaining - traveltime - 1,
+                room_flows,
+                traversal_costs
+                )
+        if newscore > maxscore:
+            maxmoves,maxscore = [destination]+newmoves,newscore
+
+    return maxmoves,maxscore
 
 
 def solve(data:list[str]) -> int:
     flow, conns = get_graph(data)
     assert len(flow)+1 == len(conns)
     costs = get_traversal_costs(conns)
-    rooms = [room for room,_ in flow.items()]
+    rooms = {room for room,_ in flow.items()}
 
-    max_score = 0
-    for perm in permutations(flow):
-        print(perm)
-        pass
+    moves,score = find_best_moves(["AA"],rooms,0,30,flow,costs)
 
-    return 0
+    return score
 
-# print(solve(puzzle.example_data.split("\n")))
-print(solve(lines))
+assert solve(puzzle.example_data.split("\n")) == 1651
+print(solve(lines)) # 2166 too low
