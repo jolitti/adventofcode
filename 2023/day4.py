@@ -1,6 +1,6 @@
 from aocd.models import Puzzle
 
-puzzle = Puzzle(year=2023,day=$DAY)
+puzzle = Puzzle(year=2023,day=4)
 data = puzzle.input_data.splitlines()
 sample_data = puzzle.examples[0].input_data.split("\n")
 
