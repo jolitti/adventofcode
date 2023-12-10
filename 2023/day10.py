@@ -1,6 +1,5 @@
 from aocd.models import Puzzle
 import numpy as np
-from scipy.ndimage import label
 import re
 
 puzzle = Puzzle(year=2023,day=10)
@@ -63,14 +62,44 @@ dirs_to_vecs = {
         "e":np.array([1,0]),
         "w":np.array([-1,0]),
         }
+vecs_to_dirs = {tuple(v):k for k,v in dirs_to_vecs.items()}
 
-structure = np.array([[0,1,0],[1,1,1],[0,1,0]])
+dir_to_arrow = {
+        "n":"^",
+        "s":"v",
+        "e":">",
+        "w":"<"
+        }
+vecs_to_arrow = {k:dir_to_arrow[v] for k,v in vecs_to_dirs.items()}
+
+cardinals = np.array(
+        [[1,0],[0,1],[-1,0],[0,-1]]
+        )
 
 #--- FUNCTIONS
 def find_start(data) -> np.ndarray:
     for y,line in enumerate(data):
         for x,c in enumerate(line):
             if c=="S": return np.array([x,y])
+
+def start_char_and_dir(data,pos) -> tuple[chr,np.ndarray]:
+    escape_dirs = []
+
+    for dd in cardinals:
+        x,y = tuple(pos + dd)
+        newchar = data[y][x]
+        if newchar==".":
+            continue
+        for d in char_to_dirs[newchar]:
+            if (dirs_to_vecs[d]==-dd).all():
+                escape_dirs.append(dd)
+
+    ans_dir = escape_dirs[0]
+    for char in r"|-FJL7":
+        dirset = set(char_to_dirs[char])
+        currentset = {vecs_to_dirs[tuple((esc))] for esc in escape_dirs}
+        if dirset == currentset: return char,ans_dir
+        
 
 def new_direction(char, direction) -> np.ndarray:
     for cardinal in char_to_dirs[char]:
@@ -87,119 +116,60 @@ def inside_path(point,data) -> bool:
     #print(f"{ray} {verdict}")
     return intersections % 2 == 1
 
-def debug_line(line):
-    print(line)
-    inside = 0
-    for i in range(len(line)):
-        if line[i]=="." and inside_path((i,0),[line]): inside += 1
-    print(inside)
-
 #--- PARTS
-
-def part1(data,first_direction) -> int:
+def part1(data) -> int:
     start_pos = find_start(data)
-    pos = start_pos + first_direction
-    direction = first_direction
-    moves = 1
+    start_char, direction = start_char_and_dir(data,start_pos)
+    new_data = [line.replace("S",start_char) for line in data]
 
-    while (pos != start_pos).any():
-        char = data[pos[1]][pos[0]]
-        direction = new_direction(char,direction)
-        pos += direction
+    moves = 1
+    position = start_pos + direction
+    while (position!=start_pos).any():
+        x,y = tuple(position)
+        direction = new_direction(data[y][x],direction)
+        position += direction
         moves += 1
-    
     return (moves+1)//2
 
-
-def part2(data,first_direction,subs_s="J",print_to_file=False) -> int:
+def part2(data) -> int:
     start_pos = find_start(data)
-    for i in range(len(data)):
-        data[i] = data[i].replace("S",subs_s)
-    pos = start_pos + first_direction
-    direction = first_direction
+    start_char, direction = start_char_and_dir(data,start_pos)
+    new_data = [line.replace("S",start_char) for line in data]
+
+    visited = {tuple(start_pos):vecs_to_arrow[tuple(direction)]}
     
-    visited_set = {tuple(start_pos)}
-    visited_list = [tuple(start_pos)]
+    position = start_pos + direction
+    while (position!=start_pos).any():
+        x,y = tuple(position)
+        direction = new_direction(data[y][x],direction)
+        visited[(x,y)] = vecs_to_arrow[tuple(direction)]
+        position += direction
 
-    while (pos != start_pos).any():
-        visited_list.append(tuple(pos))
-        visited_set.add(tuple(pos))
+    #travel_map = [
+    #        "".join(
+    #                visited.get((x,y),".")
+    #            for x in range(len(new_data[0]))
+    #            )
+    #        for y in range(len(new_data))
+    #        ]
 
-        char = data[pos[1]][pos[0]]
-        direction = new_direction(char,direction)
-        pos += direction
-
-    unvisited_map = [
-            [
-                0 if (x,y) in visited_set else 1
-                for x,_ in enumerate(line)
-            ]
-            for y,line in enumerate(data)
-            ]
-    #print(unvisited_map)
-    labeled,ncomponents = label(unvisited_map,structure)
-    _,component_counts = np.unique(labeled,return_counts=True)
-    #print(labeled)
-
-    data_path_only = [
+    data_visited_only = [
             "".join(
-                "." if (x,y) not in visited_set else c
-                for x,c in enumerate(line)
-            )
-            for y,line in enumerate(data)
+                new_data[y][x] if (x,y) in visited else "."
+                for x in range(len(new_data[0]))
+                )
+            for y in range(len(new_data))
             ]
 
-    #if print_to_file:
-    #    with open("output10","a") as file:
-    #        for y,line in enumerate(data_path_only):
-    #            for x,char in enumerate(line):
-    #                if (x,y) not in visited_set:
-    #                    file.write("*")
-    #                else:
-    #                    file.write(data_path_only[y][x])
-    #            file.write("\n")
-
-    #ans = 0
-    #for i in range(1,ncomponents+1): # we skip 0
-    #    point = np.where(labeled == i)
-    #    point = (point[1][0],point[0][0])
-
-    #    #print(i, component_counts[i],point)
-
-    #    if inside_path(point,data_path_only):
-    #        ans += component_counts[i]
-
-    #debug_line(data_path_only[len(data_path_only)//2])
-
-    # TEMPORARY UGLIER SOLUTION
     ans = 0
-    for y in range(len(data)):
-        #print(data_path_only[y])
-        for x in range(len(data[0])):
-            if (x,y) not in visited_set:
-                if inside_path((x,y),data_path_only):
+    for y,line in enumerate(data_visited_only):
+        for x,c in enumerate(line):
+            if c=="." and inside_path((x,y),data_visited_only):
                     ans += 1
 
     return ans
-    
 
-#--- ANSWERS
-
-ans_sample1 = part1(sample_data,np.array([0,1]))
-#print(ans_sample1)
-assert ans_sample1 == 8
-
-ans1 = part1(data,np.array([-1,0]))
-print(f"Answer to part 1: {ans1}")
-
-#ans_sample2 = part2(sample_data2,np.array([0,1]),"F")
-#assert ans_sample2 == 4
-
-ans_sample3 = part2(sample_data3,np.array([0,1]),"F")
-assert ans_sample3==8
-
-ans_sample4 = part2(sample_data4,np.array([0,1]),"7")
-assert ans_sample4==10
-
-#ans2 = part2(data,np.array([0,1]))
-#print(f"Answer to part 2: {ans2}")
+ans1 = part1(data)
+print(f"Answer to first part: {ans1}")
+ans2 = part2(data)
+print(f"Answer to the second part: {ans2}")
