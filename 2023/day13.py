@@ -1,79 +1,98 @@
 from aocd.models import Puzzle
-from functools import cache
+from itertools import groupby
 
 puzzle = Puzzle(year=2023,day=13)
 data = puzzle.input_data.splitlines()
-sample_data = puzzle.examples[0].input_data.split("\n")
+sample_data = \
+"""#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.
+
+#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#""".splitlines()
+
+sample_data2 = \
+"""#.....
+......
+..##..
+..##..
+......
+......""".splitlines()
 
 #--- CONSTANTS
 
 #--- FUNCTIONS
-@cache
-def palindrome(s) -> bool:
-    if len(s)%2==1: return False
-    for i in range(len(s)//2):
-        if s[i] != s[-i-1]: return False
-    return True
+def chunks(data) -> list[list[str]]:
+    return [
+            list(v)
+            for k,v in groupby(data,lambda s:s!="")
+            if k
+            ]
 
-assert (palindrome("aabbaa"))
-assert not palindrome("abcccccc")
+def eq_pairs(chunk) -> set[int] | None:
+    ans = set()
+    for i,(s1,s2) in enumerate(zip(chunk,chunk[1:])):
+        if s1 == s2: ans.add(i)
+    return ans
 
-@cache
-def mirrorpos(s) -> int | None:
-    # left reduction
-    temps = s
-    while len(temps)>2:
-        if palindrome(temps): return len(temps)//2
-        temps = temps[:-1]
-    
-    # right reduction
-    temps = s
-    iters = 0
-    while len(temps)>2:
-        if palindrome(temps): return len(temps)//2 + iters - 1
-        temps = temps[1:]
-        iters += 1
+def translate(chunk) -> list[str]:
+    return ["".join(l) for l in zip(*chunk)]
 
-    return None
+def mirror_pos(chunk) -> set[int]:
+    candidates = eq_pairs(chunk)
+    if not candidates: return set()
+    ans = set()
+    for p in candidates:
+        if all(a==b for a,b in zip(chunk[p::-1],chunk[p+1:])):
+            ans.add(p)
+    return ans
 
-def mirrorver(chunk) -> int | None:
-    positions = [mirrorpos(s) for s in chunk]
-    if len(set(positions)) == 1: return positions[0]
-    return None
-
-def mirrorhor(chunk) -> int | None:
-    s = ["" for _ in chunk[0]]
-    for line in chunk:
-        for i,c in enumerate(line):
-            s[i] += c
-    return mirrorver(s)
-
+def differences(chunk,pos) -> list[int]:
+    ans = []
+    for a,b in zip(chunk[pos::-1],chunk[pos+1:]):
+        ans.append(sum(aa!=bb for aa,bb in zip(a,b)))
+    return ans
 
 #--- PARTS
-
 def part1(data) -> int:
-    chunks = []
-    acc = []
-    for line in data + [""]:
-        if line == "":
-            chunks.append(acc)
-            acc = []
-        else:
-            acc.append(line)
-    
-    print(mirrorhor(chunks[0]))
+    data = chunks(data)
+    ans = 0
+    for ch in data:
+        a = mirror_pos(ch)
+        a = 0 if not a else a.pop()+1
+        b = mirror_pos(translate(ch))
+        b = 0 if not b else b.pop()+1
+        ans += 100*a + b
+    return ans
+
 def part2(data) -> int:
-    pass
+    data = chunks(data)
+    for ch in data:
+        for i in range(len(ch)-1):
+            print(differences(ch,i))
+        print("---")
+        for i in range(len(ch[0])-1):
+            print(differences(translate(ch),i))
+        print("===")
 
 #--- ANSWERS
 
 ans_sample1 = part1(sample_data)
-#assert ans_sample1 == 
+assert ans_sample1 == 405
 
-#ans1 = part1(data)
-#print(f"Answer to part 1: {ans1}")
+ans1 = part1(data)
+print(f"Answer to part 1: {ans1}")
 
-#ans_sample2 = part2(sample_data)
+ans_sample2 = part2(sample_data)
 #assert ans_sample2 == 
 
 #ans2 = part2(data)
