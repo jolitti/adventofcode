@@ -62,6 +62,15 @@ def differences(chunk,pos) -> list[int]:
         ans.append(sum(aa!=bb for aa,bb in zip(a,b)))
     return ans
 
+def mirror_smudge_pos(chunk) -> set[int]:
+    ans = set()
+    for i in range(len(chunk)-1):
+        diff = differences(chunk,i)
+        diff = set(diff)
+        if diff == {1} or diff == {0,1}:
+            ans.add(i)
+    return ans
+
 #--- PARTS
 def part1(data) -> int:
     data = chunks(data)
@@ -76,13 +85,17 @@ def part1(data) -> int:
 
 def part2(data) -> int:
     data = chunks(data)
+    ans = 0
     for ch in data:
-        for i in range(len(ch)-1):
-            print(differences(ch,i))
-        print("---")
-        for i in range(len(ch[0])-1):
-            print(differences(translate(ch),i))
-        print("===")
+        a = mirror_smudge_pos(ch)
+        assert len(a) <= 1
+        a = a.pop()+1 if a else 0
+        b = mirror_smudge_pos(translate(ch))
+        assert len(b) <= 1
+        b = b.pop()+1 if b else 0
+
+        ans += 100*a+b
+    return ans
 
 #--- ANSWERS
 
@@ -93,7 +106,7 @@ ans1 = part1(data)
 print(f"Answer to part 1: {ans1}")
 
 ans_sample2 = part2(sample_data)
-#assert ans_sample2 == 
+assert ans_sample2 == 400
 
-#ans2 = part2(data)
-#print(f"Answer to part 2: {ans2}")
+ans2 = part2(data)
+print(f"Answer to part 2: {ans2}")
