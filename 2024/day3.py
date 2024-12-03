@@ -41,7 +41,8 @@ def part1(data) -> int:
     return sum(row_ans_1(l) for l in data)
 
 def part2(data) -> int:
-    return sum(row_ans_2(l) for l in data)
+    data = "".join(data)
+    return row_ans_2(data)
 
 #--- ANSWERS
 
